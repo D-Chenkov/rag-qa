@@ -65,8 +65,10 @@ def build_dataset():
 def main():
     dataset = build_dataset()
 
-    # local judge (temp 0 for a stable grader)
-    judge_llm = LangchainLLMWrapper(ChatOllama(model=config.LLM_MODEL, temperature=0, base_url=config.OLLAMA_BASE_URL))
+    # local judge (temp 0 for a stable grader). JUDGE_MODEL is decoupled from the
+    # generator (LLM_MODEL) so we can grade the weak generator with a stronger judge.
+    print(f"judge = {config.JUDGE_MODEL} | generator = {config.LLM_MODEL} | embed = {config.EMBED_MODEL}")
+    judge_llm = LangchainLLMWrapper(ChatOllama(model=config.JUDGE_MODEL, temperature=0, base_url=config.OLLAMA_BASE_URL))
     judge_emb = LangchainEmbeddingsWrapper(OllamaEmbeddings(model=config.EMBED_MODEL, base_url=config.OLLAMA_BASE_URL))
 
     # A single local Ollama serves calls ~serially, so don't fire 16 at once:

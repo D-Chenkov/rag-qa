@@ -3,8 +3,15 @@
 import os
 
 # Local stack (Ollama). Swap freely - the rest of the code is provider-agnostic.
-LLM_MODEL = "gemma4:e4b"          # ollama pull gemma4:e4b
+LLM_MODEL = "gemma4:e4b"          # ollama pull gemma4:e4b  (the SYSTEM's generator)
 EMBED_MODEL = "nomic-embed-text"  # ollama pull nomic-embed-text
+
+# RAGAS judge model, DECOUPLED from the generator on purpose. Best practice is
+# to grade a weak model with a STRONGER one; gemma4:e4b judging itself is a weak
+# self-judge. On a 24GB GPU (RTX 4090) good heavyweight judges: "qwen3.6:27b"
+# (~17GB, general reasoning) or "deepseek-r1:32b" (~20GB, chain-of-thought,
+# slower). Keep everything else fixed so score deltas isolate the JUDGE.
+JUDGE_MODEL = "gemma4:e4b"        # lightweight self-judge baseline; flip to compare
 
 # Where Ollama is reachable. Defaults to localhost; inside a container set
 # OLLAMA_HOST=http://host.docker.internal:11434 to reach Ollama on the host.
