@@ -1,0 +1,11 @@
+.git
+.venv
+venv
+__pycache__
+*.pyc
+data
+faiss_index
+.vscode
+.DS_Store
+.ipynb_checkpoints
+*.md

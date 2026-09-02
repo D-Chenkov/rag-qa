@@ -30,8 +30,10 @@ rag-qa/
     agent.py          agentic RAG (LangGraph StateGraph; retriever as a tool + checkpointer memory)
     eval_set.py       15 fixed, committed ground-truth Q/A pairs (the eval set)
     eval_ragas.py     RAGAS eval (faithfulness, answer relevancy, context precision/recall)
-  app/main.py         FastAPI: POST /ask, GET /health
+  app/main.py         FastAPI: GET / (web UI), POST /ask, GET /health
+  static/index.html   minimal single-page UI (ask box + grounded answer + sources)
   tests/test_app.py   pytest (/health)
+  Dockerfile          containerized serving (Ollama on host)
   requirements.txt
 ```
 
@@ -50,11 +52,26 @@ python src/ingest.py
 # ask on the CLI
 python src/rag.py "What does the document say about X?"
 
-# or serve it
+# or serve it (web UI at http://localhost:8080/ , API at /ask)
 uvicorn app.main:app --port 8080
 curl -X POST localhost:8080/ask -H "Content-Type: application/json" \
   -d '{"question": "What is this document about?"}'
 ```
+
+### Run in Docker
+Ollama stays on the host (weights aren't baked into the image); the container reaches it via `host.docker.internal`.
+```bash
+docker build -t rag-qa .
+
+# mount the prebuilt index; point the app at host Ollama
+docker run -p 8080:8080 \
+  -v $(pwd)/faiss_index:/app/faiss_index \
+  rag-qa
+# Linux hosts also need: --add-host=host.docker.internal:host-gateway
+```
+
+### Reproducible installs
+`requirements.txt` pins the LangChain family < 1.0 to match RAGAS 0.4.3 (Python 3.12). To lock the exact versions from your working venv: `pip freeze > requirements.lock`.
 
 ## Evaluation (RAGAS)
 
@@ -84,8 +101,8 @@ Reproduce: `python src/eval_ragas.py` (flip `config.RETRIEVER` / `CHUNK_SIZE` to
 - [x] RAGAS evaluation on a fixed eval set; controlled retrieval experiments
 - [x] Hybrid (BM25 + dense) retriever - tried, measured, dense won on this corpus
 - [x] LangGraph agent variant (`src/agent.py`): retriever-as-tool, decides when to search, checkpointer memory
-- [ ] Deploy on a cloud VM + pin
-- [ ] Dockerfile + a small UI
+- [x] Dockerfile (host-Ollama networking) + minimal web UI at `/`
+- [ ] Deploy on a cloud VM (GCP) - deferred
 
 ## Notes
 LangChain's import paths shift between versions - if an import breaks, check the current docs; the concepts (loader, splitter, embeddings, vector store, retriever, chain) are stable. Answers are only as good as retrieval: if the model says "I don't know," inspect the retrieved chunks first (that's a retrieval problem, not a generation one).

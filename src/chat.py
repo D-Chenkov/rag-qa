@@ -19,7 +19,7 @@ from langchain_core.messages import HumanMessage, AIMessage
 import config
 from rag import load_retriever, _format_docs
 
-_llm = ChatOllama(model=config.LLM_MODEL, temperature=0)
+_llm = ChatOllama(model=config.LLM_MODEL, temperature=0, base_url=config.OLLAMA_BASE_URL)
 
 CONDENSE_PROMPT = ChatPromptTemplate.from_messages([
     ("system",

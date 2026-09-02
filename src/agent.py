@@ -46,7 +46,7 @@ SYSTEM = SystemMessage(content=(
     "contain the answer, say you don't know. Be concise."
 ))
 
-llm = ChatOllama(model=config.LLM_MODEL, temperature=0).bind_tools([search_docs])
+llm = ChatOllama(model=config.LLM_MODEL, temperature=0, base_url=config.OLLAMA_BASE_URL).bind_tools([search_docs])
 
 
 def agent_node(state: MessagesState):

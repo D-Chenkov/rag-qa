@@ -26,7 +26,7 @@ PROMPT = ChatPromptTemplate.from_template(
 def load_retriever(index_dir=config.INDEX_DIR, k=config.TOP_K):
     """Dense (FAISS) by default. Set config.RETRIEVER='hybrid' for BM25+dense
     fusion (EnsembleRetriever) - a controlled experiment: flip one flag, re-eval."""
-    embeddings = OllamaEmbeddings(model=config.EMBED_MODEL)
+    embeddings = OllamaEmbeddings(model=config.EMBED_MODEL, base_url=config.OLLAMA_BASE_URL)
     # allow_dangerous_deserialization: FAISS index is our own local file
     vectorstore = FAISS.load_local(index_dir, embeddings, allow_dangerous_deserialization=True)
     dense = vectorstore.as_retriever(search_kwargs={"k": k})
@@ -52,7 +52,7 @@ def _format_docs(docs):
 
 def answer(question, retriever=None):
     retriever = retriever or load_retriever()
-    llm = ChatOllama(model=config.LLM_MODEL, temperature=0)   # low temp -> faithful, grounded
+    llm = ChatOllama(model=config.LLM_MODEL, temperature=0, base_url=config.OLLAMA_BASE_URL)   # low temp -> faithful, grounded
     docs = retriever.invoke(question)                          # step 5: RETRIEVE
     chain = PROMPT | llm | StrOutputParser()                   # step 6: GENERATE
     text = chain.invoke({"context": _format_docs(docs), "question": question})

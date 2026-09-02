@@ -37,7 +37,7 @@ def load_chunks(data_dir=config.DATA_DIR):
 def build_index(data_dir=config.DATA_DIR, index_dir=config.INDEX_DIR):
     chunks = load_chunks(data_dir)                        # steps 1-2
     # 3. EMBED + 4. STORE - vectorize each chunk and index it in FAISS
-    embeddings = OllamaEmbeddings(model=config.EMBED_MODEL)
+    embeddings = OllamaEmbeddings(model=config.EMBED_MODEL, base_url=config.OLLAMA_BASE_URL)
     vectorstore = FAISS.from_documents(chunks, embeddings)
     vectorstore.save_local(index_dir)
     print(f"indexed {len(chunks)} chunks -> {index_dir}/")

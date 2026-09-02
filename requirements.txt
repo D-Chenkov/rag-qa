@@ -1,13 +1,21 @@
-langchain
-langchain-community
-langchain-core
-langchain-ollama
-langchain-huggingface
-langchain-text-splitters
-langgraph
-faiss-cpu
-rank_bm25
-pypdf
-fastapi
-uvicorn
-ragas
+# Known-good combo: Python 3.12 + RAGAS 0.4.3, which requires the pre-1.0
+# LangChain family. Pinning the whole family < 1.0 avoids the langchain 1.x
+# break (ModuleNotFoundError on langchain_community.chat_models.vertexai).
+# These are CONSTRAINTS, not an exact lock. To freeze the exact versions that
+# work on your machine:  pip freeze > requirements.lock
+
+ragas==0.4.3
+
+langchain>=0.3,<1.0
+langchain-community>=0.3,<0.4
+langchain-core>=0.3,<0.4
+langchain-text-splitters>=0.3,<1.0
+langchain-ollama>=0.2,<0.3
+langchain-huggingface>=0.1,<0.2
+langgraph>=0.2,<0.3
+
+faiss-cpu>=1.8
+rank_bm25>=0.2
+pypdf>=4.0
+fastapi>=0.110
+uvicorn>=0.29

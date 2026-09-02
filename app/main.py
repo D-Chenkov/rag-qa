@@ -8,6 +8,7 @@ import os
 import sys
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "src"))
@@ -15,6 +16,13 @@ from rag import answer, load_retriever
 
 app = FastAPI(title="rag-qa")
 _retriever = None
+
+_STATIC_DIR = os.path.join(os.path.dirname(__file__), "..", "static")
+
+
+@app.get("/")
+def index():
+    return FileResponse(os.path.join(_STATIC_DIR, "index.html"))
 
 
 class Query(BaseModel):
